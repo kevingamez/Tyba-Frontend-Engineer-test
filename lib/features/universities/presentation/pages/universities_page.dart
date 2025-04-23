@@ -4,6 +4,7 @@ import 'package:university_app/features/universities/data/datasources/university
 import 'package:university_app/features/universities/data/repositories/university_repository_impl.dart';
 import 'package:university_app/features/universities/domain/entities/university.dart';
 import 'package:university_app/features/universities/domain/usecases/get_universities.dart';
+import 'package:university_app/features/universities/presentation/pages/university_detail_page.dart';
 
 class UniversitiesPage extends StatefulWidget {
   const UniversitiesPage({Key? key}) : super(key: key);
@@ -53,6 +54,14 @@ class _UniversitiesPageState extends State<UniversitiesPage> {
     setState(() {
       _isGridView = !_isGridView;
     });
+  }
+
+  void _navigateToDetail(University university) {
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (context) => UniversityDetailPage(university: university),
+      ),
+    );
   }
 
   @override
@@ -117,6 +126,7 @@ class _UniversitiesPageState extends State<UniversitiesPage> {
                 university.webPages.isNotEmpty
                     ? const Icon(Icons.language)
                     : null,
+            onTap: () => _navigateToDetail(university),
           ),
         );
       },
@@ -135,33 +145,36 @@ class _UniversitiesPageState extends State<UniversitiesPage> {
       itemCount: _universities.length,
       itemBuilder: (context, index) {
         final university = _universities[index];
-        return Card(
-          elevation: 2.0,
-          child: Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                const Icon(Icons.school, size: 40),
-                const SizedBox(height: 8),
-                Text(
-                  university.name,
-                  style: const TextStyle(fontWeight: FontWeight.bold),
-                  textAlign: TextAlign.center,
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  university.country,
-                  style: const TextStyle(fontSize: 12),
-                  textAlign: TextAlign.center,
-                ),
-                if (university.webPages.isNotEmpty) ...[
+        return GestureDetector(
+          onTap: () => _navigateToDetail(university),
+          child: Card(
+            elevation: 2.0,
+            child: Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const Icon(Icons.school, size: 40),
                   const SizedBox(height: 8),
-                  const Icon(Icons.language, size: 16),
+                  Text(
+                    university.name,
+                    style: const TextStyle(fontWeight: FontWeight.bold),
+                    textAlign: TextAlign.center,
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    university.country,
+                    style: const TextStyle(fontSize: 12),
+                    textAlign: TextAlign.center,
+                  ),
+                  if (university.webPages.isNotEmpty) ...[
+                    const SizedBox(height: 8),
+                    const Icon(Icons.language, size: 16),
+                  ],
                 ],
-              ],
+              ),
             ),
           ),
         );
