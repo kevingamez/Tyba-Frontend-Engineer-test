@@ -1,0 +1,47 @@
+# Flutter/Dart/Pub related
+.dart_tool/
+.packages
+.pub/
+build/
+# Generated plugin registrant
+.flutter-plugins
+.flutter-plugins-dependencies
+.metadata
+
+# Android
+/android/.gradle/
+/android/app/*.iml
+/android/local.properties
+/android/.idea/
+/android/captures/
+/android/app/build/
+
+# iOS
+/ios/Flutter/.last_build_id
+/ios/Pods/
+/ios/Runner.xcworkspace/
+ios/Flutter/Flutter.framework
+ios/Flutter/Flutter.podspec
+ios/ServiceDefinitions.json
+ios/Runner/*.xcodeproj/project.xcworkspace/
+/ios/Runner/GeneratedPluginRegistrant.*
+
+# Web
+/web/.dart_tool/
+/web/build/
+
+# VS Code
+.vscode/
+
+# IntelliJ / Android Studio
+.idea/
+/*.iml
+*.ipr
+*.iws
+
+# Misc
+*.log
+*.lock
+pubspec.lock
+
+.history
