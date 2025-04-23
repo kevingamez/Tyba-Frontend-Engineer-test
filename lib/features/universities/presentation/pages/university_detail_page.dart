@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:university_app/features/universities/domain/entities/university.dart';
 import 'package:university_app/features/universities/domain/entities/university_detail.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class UniversityDetailPage extends StatefulWidget {
   final University university;
@@ -174,35 +175,24 @@ class _UniversityDetailPageState extends State<UniversityDetailPage> {
                 style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
               ),
               const Divider(),
-              for (final domain in university.domains)
-                Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 4.0),
-                  child: Text(domain),
-                ),
 
-              const SizedBox(height: 24),
-
-              // University Web Pages
-              const Text(
-                'Web Pages',
-                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-              ),
-              const Divider(),
               for (final webPage in university.webPages)
                 Padding(
                   padding: const EdgeInsets.symmetric(vertical: 4.0),
-                  child: Text(
-                    webPage,
-                    style: const TextStyle(
-                      color: Colors.blue,
-                      decoration: TextDecoration.underline,
+                  child: InkWell(
+                    onTap: () => _launchURL(webPage),
+                    child: Text(
+                      webPage,
+                      style: const TextStyle(
+                        color: Colors.blue,
+                        decoration: TextDecoration.underline,
+                      ),
                     ),
                   ),
                 ),
 
               const SizedBox(height: 24),
 
-              // Student Count Input
               const Text(
                 'Student Count',
                 style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
@@ -221,7 +211,7 @@ class _UniversityDetailPageState extends State<UniversityDetailPage> {
                     try {
                       final count = int.parse(value);
                       if (count < 0) {
-                        return 'Student count must be a positive number';
+                        return 'Student count must greater than 0';
                       }
                     } catch (e) {
                       return 'Please enter a valid number';
@@ -241,6 +231,15 @@ class _UniversityDetailPageState extends State<UniversityDetailPage> {
         child: const Icon(Icons.save),
       ),
     );
+  }
+
+  Future<void> _launchURL(String url) async {
+    final uri = Uri.parse(url);
+    if (!await launchUrl(uri, mode: LaunchMode.externalApplication)) {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Could not open $url')));
+    }
   }
 
   Widget _buildInfoRow(String label, String value) {
