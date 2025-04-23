@@ -4,6 +4,8 @@ import 'package:image_picker/image_picker.dart';
 import 'package:university_app/features/universities/domain/entities/university.dart';
 import 'package:university_app/features/universities/domain/entities/university_detail.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'dart:convert';
 
 class UniversityDetailPage extends StatefulWidget {
   final University university;
@@ -25,6 +27,30 @@ class _UniversityDetailPageState extends State<UniversityDetailPage> {
   void initState() {
     super.initState();
     _universityDetail = UniversityDetail(university: widget.university);
+    _loadSavedDetails();
+  }
+
+  Future<void> _loadSavedDetails() async {
+    final prefs = await SharedPreferences.getInstance();
+    final universityId = widget.university.name + widget.university.country;
+    final studentCount = prefs.getInt('${universityId}_student_count');
+    final imagePath = prefs.getString('${universityId}_image_path');
+
+    if (studentCount != null) {
+      _studentCountController.text = studentCount.toString();
+    }
+
+    if (imagePath != null) {
+      final file = File(imagePath);
+      if (await file.exists()) {
+        setState(() {
+          _universityDetail = _universityDetail.copyWith(
+            image: file,
+            studentCount: studentCount,
+          );
+        });
+      }
+    }
   }
 
   @override
@@ -42,12 +68,19 @@ class _UniversityDetailPageState extends State<UniversityDetailPage> {
             image: File(pickedFile.path),
           );
         });
+        _saveImagePath(pickedFile.path);
       }
     } catch (e) {
       ScaffoldMessenger.of(
         context,
       ).showSnackBar(SnackBar(content: Text('Error picking image: $e')));
     }
+  }
+
+  Future<void> _saveImagePath(String path) async {
+    final prefs = await SharedPreferences.getInstance();
+    final universityId = widget.university.name + widget.university.country;
+    await prefs.setString('${universityId}_image_path', path);
   }
 
   void _showImageSourceDialog() {
@@ -81,14 +114,26 @@ class _UniversityDetailPageState extends State<UniversityDetailPage> {
     );
   }
 
-  void _saveDetails() {
+  Future<void> _saveDetails() async {
     if (_formKey.currentState!.validate()) {
-      // Aquí podrías implementar la lógica para guardar los detalles
-      // (por ejemplo, usando un repositorio o un bloc)
+      final prefs = await SharedPreferences.getInstance();
+      final universityId = widget.university.name + widget.university.country;
+
       int? studentCount =
           _studentCountController.text.isNotEmpty
               ? int.parse(_studentCountController.text)
               : null;
+
+      if (studentCount != null) {
+        await prefs.setInt('${universityId}_student_count', studentCount);
+      }
+
+      if (_universityDetail.image != null) {
+        await prefs.setString(
+          '${universityId}_image_path',
+          _universityDetail.image!.path,
+        );
+      }
 
       setState(() {
         _universityDetail = _universityDetail.copyWith(
@@ -98,7 +143,7 @@ class _UniversityDetailPageState extends State<UniversityDetailPage> {
 
       ScaffoldMessenger.of(
         context,
-      ).showSnackBar(const SnackBar(content: Text('University details saved')));
+      ).showSnackBar(const SnackBar(content: Text('University details ')));
     }
   }
 
